@@ -1,5 +1,37 @@
 import './style.css'
 
+const Audio = window.AudioContext || window.webkitAudioContext
+const ctx = Audio ? new Audio() : null
+
+function beep(freq = 440, dur = 0.1, vol = 0.3, type = 'sine') {
+  if (!ctx) return
+  const o = ctx.createOscillator()
+  const g = ctx.createGain()
+  o.connect(g); g.connect(ctx.destination)
+  o.frequency.value = freq
+  o.type = type
+  g.gain.setValueAtTime(vol, ctx.currentTime)
+  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur)
+  o.start(); o.stop(ctx.currentTime + dur)
+}
+
+function soundClick()   { beep(600, 0.06, 0.2) }
+function soundPass()    { beep(800, 0.08, 0.25) }
+function soundFail()    { beep(200, 0.12, 0.25, 'sawtooth') }
+function soundSubmit()  { beep(500, 0.05, 0.2); setTimeout(() => beep(700, 0.1, 0.2), 80) }
+function soundResult(match) {
+  if (match >= 90) {
+    [0,100,200].forEach(d => setTimeout(() => beep(880, 0.15, 0.3), d))
+  } else if (match >= 70) {
+    beep(660, 0.2, 0.25)
+  } else {
+    beep(220, 0.3, 0.2, 'sawtooth')
+  }
+}
+function soundAchievement() {
+  [0,150,300].forEach(d => setTimeout(() => beep(1000, 0.1, 0.2), d))
+}
+
 const checks  = ['Clear camera feed','Task completed','Hand in frame','Cameras in sync']
 const ratings = ['Robot control','Movement smoothness','Task speed','Task completion','Camera composition']
 
@@ -273,12 +305,14 @@ document.querySelectorAll('.choice button').forEach(btn => {
   btn.onclick = () => {
     btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('selected'))
     btn.classList.add('selected')
+soundClick()
   }
 })
 
 document.querySelectorAll('.dots').forEach(group => {
   group.onclick = e => {
     if (!e.target.matches('button')) return
+soundClick()
     group.querySelectorAll('button').forEach(b =>
       b.classList.toggle('chosen', +b.dataset.rating <= +e.target.dataset.rating))
   }
@@ -295,6 +329,7 @@ document.querySelector('#submit').onclick = () => {
   const reward      = match >= 90 ? 700 : match >= 70 ? 160 : 75
   const vrsGain     = match >= 90 ? 12  : match >= 70 ? 6   : 2
   clearInterval(timerInterval)
+soundSubmit()
   document.querySelector('#match').textContent    = `${match}%`
   document.querySelector('#reward').textContent   = `+${reward} PP`
   document.querySelector('#vrs-gain').textContent = `+${vrsGain} VRS`
@@ -304,6 +339,7 @@ document.querySelector('#submit').onclick = () => {
   localStorage.setItem('bestMatch', Math.max(match, Number(localStorage.getItem('bestMatch') || 0)))
 if (timeLeft > 60) localStorage.setItem('speedDemon', 'true')
 checkNewAchievements()
+soundResult(match)
 document.querySelector('#result').classList.add('show')
 }
 
@@ -385,6 +421,7 @@ function checkNewAchievements() {
     if (!localStorage.getItem(key) && a.check()) {
       localStorage.setItem(key, 'true')
       setTimeout(() => showToast(`${a.icon} Achievement unlocked: ${a.title}!`), 1000)
+setTimeout(() => soundAchievement(), 1000)
     }
   })
 }
