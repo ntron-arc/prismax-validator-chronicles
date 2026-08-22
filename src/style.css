@@ -48,3 +48,12 @@
 .leaderboard-view .status-row,.leaderboard-view .mission-card,.leaderboard-view .station,.leaderboard-view .review-grid,.leaderboard-view .submit-row,.leaderboard-view .progress-panel{display:none}
 .leaderboard-view .leaderboard-panel{display:block}
 @media(max-width:760px){.lb-header,.lb-row{grid-template-columns:40px 1fr 70px 90px 60px;font-size:11px;padding:12px}}
+.ach-section{margin-top:18px}
+.achievement{display:flex;align-items:center;gap:14px;padding:14px 18px;border:1px solid #e9d2a720;margin-bottom:8px;background:#160d09cc;opacity:.45;filter:grayscale(1)}
+.achievement.unlocked{opacity:1;filter:none;border-color:#e9d2a744}
+.ach-icon{font-size:24px;flex-shrink:0}
+.ach-content{flex:1}
+.ach-content b{display:block;font-size:13px;margin-bottom:2px}
+.ach-content small{font:10px 'DM Mono';color:#d3b77e}
+.ach-status{font:9px 'DM Mono';color:#d3b77e}
+.achievement.unlocked .ach-status{color:#e9d2a7}

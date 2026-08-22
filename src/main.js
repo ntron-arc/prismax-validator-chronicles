@@ -202,6 +202,10 @@ document.querySelector('#app').innerHTML = `
       </div>
     </div>
     <div id="streak-container"></div>
+<div class="ach-section">
+  <p class="eyebrow" style="margin-bottom:16px">ACHIEVEMENTS</p>
+  <div id="ach-container"></div>
+</div>
     <div class="progress-columns">
       <article>
         <p class="eyebrow">ROBOT ARM TIERS</p>
@@ -297,7 +301,10 @@ document.querySelector('#submit').onclick = () => {
   document.querySelector('#result-copy').textContent = match >= 90 ? 'Elite calibration. You earned an Eval Engine bonus.' : match >= 70 ? 'Good calibration. Review the visual clues to improve further.' : 'The Eval Engine found important differences. Try another episode.'
   document.querySelector('#result').dataset.reward = reward
   document.querySelector('#result').dataset.vrs    = vrsGain
-  document.querySelector('#result').classList.add('show')
+  localStorage.setItem('bestMatch', Math.max(match, Number(localStorage.getItem('bestMatch') || 0)))
+if (timeLeft > 60) localStorage.setItem('speedDemon', 'true')
+checkNewAchievements()
+document.querySelector('#result').classList.add('show')
 }
 
 document.querySelector('#share-result').onclick = () => {
@@ -325,6 +332,7 @@ document.querySelector('#progress-nav').onclick = () => {
   document.querySelector('#progress-vrs').textContent = reputation
   document.querySelector('#progress-pp').textContent  = prismaPoints.toLocaleString() + ' PP'
   document.querySelector('#streak-container').innerHTML = renderStreakWidget()
+document.querySelector('#ach-container').innerHTML = renderAchievements()
   document.querySelector('#progress-nav').classList.add('active')
   document.querySelector('#station-nav').classList.remove('active')
   document.querySelector('.meter i').style.width = Math.min(100,(reputation/600)*100) + '%'
@@ -348,6 +356,38 @@ loadEpisode()
 const streakResult = checkAndUpdateStreak()
 document.querySelector('#points').textContent = `${prismaPoints.toLocaleString()} PP`
 setTimeout(() => showStreakBanner(streakResult), 800)
+const ACHIEVEMENTS = [
+  {id:'first',icon:'🏆',title:'First Validation',desc:'Complete your first episode.',check:()=> reputation > 500},
+  {id:'sharp',icon:'🎯',title:'Sharp Eye',desc:'Score 90%+ accuracy.',check:()=> localStorage.getItem('bestMatch') >= 90},
+  {id:'fire',icon:'🔥',title:'On Fire',desc:'Reach a 3-day streak.',check:()=> getStreakData().streak >= 3},
+  {id:'week',icon:'💎',title:'Week Warrior',desc:'Reach a 7-day streak.',check:()=> getStreakData().streak >= 7},
+  {id:'speed',icon:'⚡',title:'Speed Demon',desc:'Submit with over 1 minute remaining.',check:()=> localStorage.getItem('speedDemon') === 'true'},
+  {id:'elite',icon:'🌟',title:'Elite Validator',desc:'Reach 800 VRS.',check:()=> reputation >= 800},
+]
+
+function renderAchievements() {
+  return ACHIEVEMENTS.map(a => {
+    const unlocked = a.check()
+    return `<div class="achievement ${unlocked ? 'unlocked' : ''}">
+      <div class="ach-icon">${a.icon}</div>
+      <div class="ach-content">
+        <b>${a.title}</b>
+        <small>${a.desc}</small>
+      </div>
+      <div class="ach-status">${unlocked ? '✓ Unlocked' : 'Locked'}</div>
+    </div>`
+  }).join('')
+}
+
+function checkNewAchievements() {
+  ACHIEVEMENTS.forEach(a => {
+    const key = `ach_${a.id}`
+    if (!localStorage.getItem(key) && a.check()) {
+      localStorage.setItem(key, 'true')
+      setTimeout(() => showToast(`${a.icon} Achievement unlocked: ${a.title}!`), 1000)
+    }
+  })
+}
 const fakeValidators = [
   {name:'0xNova',vrs:1240,pp:48200,streak:21},
   {name:'RoboSage',vrs:1180,pp:44100,streak:18},
