@@ -392,6 +392,71 @@ loadEpisode()
 const streakResult = checkAndUpdateStreak()
 document.querySelector('#points').textContent = `${prismaPoints.toLocaleString()} PP`
 setTimeout(() => showStreakBanner(streakResult), 800)
+function showOnboarding() {
+  if (localStorage.getItem('onboarded')) return
+  const ob = document.createElement('div')
+  ob.className = 'onboarding'
+  ob.innerHTML = `
+    <section class="ob-card">
+      <div class="ob-steps">
+        <div class="ob-step active" data-step="0">
+          <div class="ob-icon">🎬</div>
+          <p class="eyebrow">STEP 01 · WATCH</p>
+          <h2>Watch the robot.</h2>
+          <p>Three camera angles play simultaneously — LEFT, HIGH and RIGHT. Watch all three carefully before judging.</p>
+        </div>
+        <div class="ob-step" data-step="1">
+          <div class="ob-icon">✅</div>
+          <p class="eyebrow">STEP 02 · CHECK</p>
+          <h2>Pass or Fail?</h2>
+          <p>Judge 4 criteria — camera clarity, task completion, arm visibility and camera sync. One fail affects your score.</p>
+        </div>
+        <div class="ob-step" data-step="2">
+          <div class="ob-icon">⭐</div>
+          <p class="eyebrow">STEP 03 · RATE</p>
+          <h2>Rate the quality.</h2>
+          <p>Score 5 quality metrics from 1 to 5. The Eval Engine will compare your scores against its own after you submit.</p>
+        </div>
+        <div class="ob-step" data-step="3">
+          <div class="ob-icon">🏆</div>
+          <p class="eyebrow">STEP 04 · EARN</p>
+          <h2>Earn & climb.</h2>
+          <p>Accurate validators earn more Prisma Points and VRS reputation. Come back daily to build your streak and unlock achievements.</p>
+        </div>
+      </div>
+      <div class="ob-dots">
+        ${[0,1,2,3].map(i => `<div class="ob-dot ${i===0?'active':''}" data-dot="${i}"></div>`).join('')}
+      </div>
+      <div class="ob-nav">
+        <button class="ob-skip">Skip</button>
+        <button class="ob-next">Next →</button>
+      </div>
+    </section>`
+  document.body.append(ob)
+  let current = 0
+  const steps = ob.querySelectorAll('.ob-step')
+  const dots  = ob.querySelectorAll('.ob-dot')
+  const next  = ob.querySelector('.ob-next')
+
+  function goTo(i) {
+    steps.forEach(s => s.classList.remove('active'))
+    dots.forEach(d => d.classList.remove('active'))
+    steps[i].classList.add('active')
+    dots[i].classList.add('active')
+    current = i
+    next.textContent = i === 3 ? 'Start validating →' : 'Next →'
+  }
+
+  next.onclick = () => {
+    if (current < 3) { goTo(current + 1) }
+    else { localStorage.setItem('onboarded','true'); ob.remove() }
+  }
+  ob.querySelector('.ob-skip').onclick = () => {
+    localStorage.setItem('onboarded','true'); ob.remove()
+  }
+}
+
+setTimeout(() => showOnboarding(), 1200)
 const ACHIEVEMENTS = [
   {id:'first',icon:'🏆',title:'First Validation',desc:'Complete your first episode.',check:()=> reputation > 500},
   {id:'sharp',icon:'🎯',title:'Sharp Eye',desc:'Score 90%+ accuracy.',check:()=> localStorage.getItem('bestMatch') >= 90},

@@ -87,3 +87,16 @@
 .ach-content small{font:10px 'DM Mono';color:#d3b77e}
 .ach-status{font:9px 'DM Mono';color:#d3b77e}
 .achievement.unlocked .ach-status{color:#e9d2a7}
+.onboarding{position:fixed;inset:0;z-index:99;display:grid;place-items:center;padding:20px;background:#0a0505e8;backdrop-filter:blur(8px)}
+.ob-card{width:min(480px,100%);background:linear-gradient(145deg,#2a160e,#120b09);border:1px solid #e9d2a766;padding:40px;text-align:center}
+.ob-step{display:none}
+.ob-step.active{display:block}
+.ob-icon{font-size:48px;margin-bottom:16px}
+.ob-card h2{font:500 32px 'Playfair Display';margin:8px 0 16px;color:#f5ede0}
+.ob-card p:not(.eyebrow){font-size:14px;color:#c4ad8a;line-height:1.7;margin:0}
+.ob-dots{display:flex;justify-content:center;gap:8px;margin:28px 0 24px}
+.ob-dot{width:8px;height:8px;border-radius:50%;background:#e9d2a733;transition:.2s}
+.ob-dot.active{background:#e9d2a7;transform:scale(1.3)}
+.ob-nav{display:flex;justify-content:space-between;align-items:center}
+.ob-skip{background:transparent;border:0;color:#7a6858;font-size:12px;cursor:pointer}
+.ob-next{background:#e9d2a7;border:0;color:#27170d;padding:12px 24px;font-size:12px;font-weight:600;cursor:pointer}
