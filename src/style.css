@@ -35,3 +35,16 @@
 .sr-item small{font:9px 'DM Mono';color:#c4ad8a}
 #share-result{background:transparent;border:1px solid #e9d2a766;color:#f3d690;padding:14px 20px;font-size:12px;font-weight:600;width:100%;margin-bottom:8px;cursor:pointer;}
 #share-result:hover{background:#e9d2a711;}
+.leaderboard-panel{display:none;padding:58px 0}
+.leaderboard-panel>h1{font:500 clamp(30px,4vw,50px) 'Playfair Display';margin:0 0 32px;letter-spacing:-1.5px}
+.lb-table{border:1px solid #e9d2a733;background:#160d09cc}
+.lb-header{display:grid;grid-template-columns:60px 1fr 100px 120px 80px;padding:12px 20px;border-bottom:1px solid #e9d2a733;font:9px 'DM Mono';letter-spacing:1px;color:#d3b77e}
+.lb-row{display:grid;grid-template-columns:60px 1fr 100px 120px 80px;padding:16px 20px;border-bottom:1px solid #e9d2a715;font-size:13px;align-items:center}
+.lb-row:last-child{border-bottom:0}
+.lb-you{background:#e9d2a708;border-left:2px solid #e9d2a7}
+.lb-rank{font:13px 'DM Mono';color:#d3b77e}
+.lb-name{font-weight:600}
+.lb-name em{font-style:normal;font-size:10px;color:#d3b77e}
+.leaderboard-view .status-row,.leaderboard-view .mission-card,.leaderboard-view .station,.leaderboard-view .review-grid,.leaderboard-view .submit-row,.leaderboard-view .progress-panel{display:none}
+.leaderboard-view .leaderboard-panel{display:block}
+@media(max-width:760px){.lb-header,.lb-row{grid-template-columns:40px 1fr 70px 90px 60px;font-size:11px;padding:12px}}

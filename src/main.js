@@ -113,7 +113,7 @@ document.querySelector('#app').innerHTML = `
     <nav>
       <a class="active" id="station-nav">Validation Station</a>
       <a id="progress-nav">Progress</a>
-      <a>Leaderboard</a>
+      <a id="leaderboard-nav">Leaderboard</a>
     </nav>
     <div class="profile">
       <div><b id="vrs">${reputation}</b><small>VRS</small></div>
@@ -170,7 +170,17 @@ document.querySelector('#app').innerHTML = `
     <p>Submit only when your review is complete. The Eval Engine will compare your judgment after submission.</p>
     <button id="submit">Submit validation <span>→</span></button>
   </section>
-  <section class="progress-panel">
+ <section class="leaderboard-panel">
+  <p class="eyebrow">GLOBAL RANKINGS · SEASON 01</p>
+  <h1>Top Validators.</h1>
+  <div class="lb-table">
+    <div class="lb-header">
+      <span>RANK</span><span>VALIDATOR</span><span>VRS</span><span>PP</span><span>STREAK</span>
+    </div>
+    <div id="lb-rows"></div>
+  </div>
+</section>
+<section class="progress-panel">
     <p class="eyebrow">VALIDATOR PROFILE · SEASON 01</p>
     <h1>Your signal is getting clearer.</h1>
     <div class="progress-hero">
@@ -338,3 +348,46 @@ loadEpisode()
 const streakResult = checkAndUpdateStreak()
 document.querySelector('#points').textContent = `${prismaPoints.toLocaleString()} PP`
 setTimeout(() => showStreakBanner(streakResult), 800)
+const fakeValidators = [
+  {name:'0xNova',vrs:1240,pp:48200,streak:21},
+  {name:'RoboSage',vrs:1180,pp:44100,streak:18},
+  {name:'DataPulse',vrs:1050,pp:39800,streak:14},
+  {name:'SyncZero',vrs:980,pp:35200,streak:12},
+  {name:'VaultArm',vrs:910,pp:31000,streak:9},
+  {name:'N-TRON',vrs:reputation,pp:prismaPoints,streak:getStreakData().streak},
+  {name:'CalibrX',vrs:820,pp:28400,streak:7},
+  {name:'EvalBot',vrs:760,pp:24100,streak:5},
+  {name:'FrameSync',vrs:700,pp:19800,streak:4},
+  {name:'ArmWatch',vrs:640,pp:15200,streak:3},
+]
+
+function renderLeaderboard() {
+  const sorted = [...fakeValidators].sort((a,b) => b.vrs - a.vrs)
+  document.querySelector('#lb-rows').innerHTML = sorted.map((v,i) => `
+    <div class="lb-row ${v.name === 'N-TRON' ? 'lb-you' : ''}">
+      <span class="lb-rank">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`}</span>
+      <span class="lb-name">${v.name}${v.name === 'N-TRON' ? ' <em>· you</em>' : ''}</span>
+      <span>${v.vrs} VRS</span>
+      <span>${v.pp.toLocaleString()} PP</span>
+      <span>🔥 ${v.streak}d</span>
+    </div>`).join('')
+}
+
+document.querySelector('#leaderboard-nav').onclick = () => {
+  document.querySelector('#app').classList.remove('progress-view')
+  document.querySelector('#app').classList.add('leaderboard-view')
+  document.querySelector('#leaderboard-nav').classList.add('active')
+  document.querySelector('#station-nav').classList.remove('active')
+  document.querySelector('#progress-nav').classList.remove('active')
+  fakeValidators.find(v => v.name === 'N-TRON').vrs = reputation
+  fakeValidators.find(v => v.name === 'N-TRON').pp  = prismaPoints
+  fakeValidators.find(v => v.name === 'N-TRON').streak = getStreakData().streak
+  renderLeaderboard()
+}
+
+document.querySelector('#station-nav').onclick = () => {
+  document.querySelector('#app').classList.remove('progress-view','leaderboard-view')
+  document.querySelector('#station-nav').classList.add('active')
+  document.querySelector('#progress-nav').classList.remove('active')
+  document.querySelector('#leaderboard-nav').classList.remove('active')
+}
