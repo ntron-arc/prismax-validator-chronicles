@@ -33,3 +33,5 @@
 .sr-item span{display:block;font-size:20px;margin-bottom:4px}
 .sr-item b{display:block;font-size:11px;color:#f3d690;margin-bottom:2px}
 .sr-item small{font:9px 'DM Mono';color:#c4ad8a}
+#share-result{background:transparent;border:1px solid #e9d2a766;color:#f3d690;padding:14px 20px;font-size:12px;font-weight:600;width:100%;margin-bottom:8px;cursor:pointer;}
+#share-result:hover{background:#e9d2a711;}

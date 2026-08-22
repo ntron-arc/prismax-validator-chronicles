@@ -218,7 +218,8 @@ document.querySelector('#app').innerHTML = `
         <div><small>PRISMA POINTS</small><b id="reward">+160 PP</b></div>
         <div><small>REPUTATION</small><b id="vrs-gain">+12 VRS</b></div>
       </div>
-      <button id="continue">Continue to station →</button>
+      <button id="share-result">Share on X 𝕏</button>
+<button id="continue">Continue to station →</button>
     </section>
   </div>
   <footer class="social-footer">
@@ -289,6 +290,13 @@ document.querySelector('#submit').onclick = () => {
   document.querySelector('#result').classList.add('show')
 }
 
+document.querySelector('#share-result').onclick = () => {
+  const match   = document.querySelector('#match').textContent
+  const reward  = document.querySelector('#reward').textContent
+  const vrsGain = document.querySelector('#vrs-gain').textContent
+  const text = `Just validated robot training data on @PrismaXai Validator Chronicles!\n\n🎯 Accuracy: ${match}\n✦ ${reward} Prisma Points\n📈 ${vrsGain} Reputation\n\nValidate for free:\nhttps://prismax-validator-chronicles.vercel.app\n\n@mister_ntron #PrismaX #PhysicalAI`
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank')
+}
 document.querySelector('#continue').onclick = () => {
   const result = document.querySelector('#result')
   prismaPoints += Number(result.dataset.reward)
