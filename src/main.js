@@ -407,7 +407,9 @@ document.querySelector('#ach-container').innerHTML = renderAchievements()
 document.querySelector('#history-container').innerHTML = renderHistory()
   document.querySelector('#progress-nav').classList.add('active')
   document.querySelector('#station-nav').classList.remove('active')
-  document.querySelector('.meter i').style.width = Math.min(100,(reputation/600)*100) + '%'
+  const meter = document.querySelector('.meter i')
+meter.style.width = '0%'
+setTimeout(() => meter.style.width = Math.min(100,(reputation/600)*100) + '%', 100)
 }
 
 document.querySelector('#station-nav').onclick = () => {
@@ -427,6 +429,9 @@ document.querySelector('.active-chapter i').onclick = () => {
 loadEpisode()
 const streakResult = checkAndUpdateStreak()
 document.querySelector('#points').textContent = `${prismaPoints.toLocaleString()} PP`
+const ranks = [[0,'🌱 Seedling'],[600,'🔍 Observer'],[700,'⚡ Amplifier'],[800,'🔬 Innovator'],[900,'🏆 Core Contributor'],[950,'💎 Founding Validator']]
+const rank = [...ranks].reverse().find(r => reputation >= r[0])
+if (document.querySelector('.progress-hero h2')) document.querySelector('.progress-hero h2').textContent = rank[1]
 setTimeout(() => showStreakBanner(streakResult), 800)
 function showOnboarding() {
   if (localStorage.getItem('onboarded')) return
