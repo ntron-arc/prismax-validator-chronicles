@@ -54,6 +54,36 @@ let prismaPoints = Number(localStorage.getItem('pp'))   || 1240
 let reputation   = Number(localStorage.getItem('vrs'))  || 500
 let currentEpisode
 let timerInterval
+let sessionHistory = JSON.parse(localStorage.getItem('history') || '[]')
+
+function saveHistory(episode, match, reward, vrs) {
+  const entry = {
+    title: episode.title,
+    match,
+    reward,
+    vrs,
+    date: new Date().toLocaleDateString('en-US', {month:'short', day:'numeric'}),
+    time: new Date().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'})
+  }
+  sessionHistory.unshift(entry)
+  if (sessionHistory.length > 10) sessionHistory.pop()
+  localStorage.setItem('history', JSON.stringify(sessionHistory))
+}
+
+function renderHistory() {
+  if (!sessionHistory.length) return `<div class="history-empty"><p>No sessions yet.</p><small>Complete a validation to see your history here.</small></div>`
+  return sessionHistory.map((s,i) => `
+    <div class="history-row">
+      <div class="hr-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="hr-content">
+        <b>${s.title}</b>
+        <small>${s.date} · ${s.time}</small>
+      </div>
+      <div class="hr-match" style="color:${s.match>=90?'#7acc7a':s.match>=70?'#e8b96a':'#d76542'}">${s.match}%</div>
+      <div class="hr-reward">+${s.reward} PP</div>
+      <div class="hr-vrs">+${s.vrs} VRS</div>
+    </div>`).join('')
+}
 let timeLeft = 168
 
 function getStreakData() {
@@ -234,6 +264,10 @@ document.querySelector('#app').innerHTML = `
       </div>
     </div>
     <div id="streak-container"></div>
+<div class="history-section">
+  <p class="eyebrow" style="margin-bottom:16px">RECENT SESSIONS</p>
+  <div id="history-container"></div>
+</div>
 <div class="ach-section">
   <p class="eyebrow" style="margin-bottom:16px">ACHIEVEMENTS</p>
   <div id="ach-container"></div>
@@ -334,7 +368,8 @@ soundSubmit()
   document.querySelector('#reward').textContent   = `+${reward} PP`
   document.querySelector('#vrs-gain').textContent = `+${vrsGain} VRS`
   document.querySelector('#result-copy').textContent = match >= 90 ? 'Elite calibration. You earned an Eval Engine bonus.' : match >= 70 ? 'Good calibration. Review the visual clues to improve further.' : 'The Eval Engine found important differences. Try another episode.'
-  document.querySelector('#result').dataset.reward = reward
+  saveHistory(currentEpisode, match, reward, vrsGain)
+document.querySelector('#result').dataset.reward = reward
   document.querySelector('#result').dataset.vrs    = vrsGain
   localStorage.setItem('bestMatch', Math.max(match, Number(localStorage.getItem('bestMatch') || 0)))
 if (timeLeft > 60) localStorage.setItem('speedDemon', 'true')
@@ -369,6 +404,7 @@ document.querySelector('#progress-nav').onclick = () => {
   document.querySelector('#progress-pp').textContent  = prismaPoints.toLocaleString() + ' PP'
   document.querySelector('#streak-container').innerHTML = renderStreakWidget()
 document.querySelector('#ach-container').innerHTML = renderAchievements()
+document.querySelector('#history-container').innerHTML = renderHistory()
   document.querySelector('#progress-nav').classList.add('active')
   document.querySelector('#station-nav').classList.remove('active')
   document.querySelector('.meter i').style.width = Math.min(100,(reputation/600)*100) + '%'
