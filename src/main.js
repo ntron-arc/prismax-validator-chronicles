@@ -1,3 +1,77 @@
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  'https://iyxycrkohzxbbbtorjla.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5eHljcmtvaHp4YmJidG9yamxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NDQyOTcsImV4cCI6MjEwMzEyMDI5N30.E4Uj5I1r5DJMH_KkKh0UFUmuBg6eyj0sOaAWg144AOo'
+)
+
+let currentUser = null
+
+async function checkUser() {
+  const { data: { user } } = await supabase.auth.getUser()
+  currentUser = user
+  if (user) {
+    document.querySelector('#auth-screen')?.remove()
+    initApp()
+  } else {
+    showAuthScreen()
+  }
+}
+
+function showAuthScreen() {
+  const auth = document.createElement('div')
+  auth.id = 'auth-screen'
+  auth.innerHTML = `
+    <div class="auth-card">
+      <div class="auth-brand">Prisma<sup>(X)</sup></div>
+      <p class="eyebrow">VALIDATOR CHRONICLES</p>
+      <h2>Calibrate the future<br>of Physical AI.</h2>
+      <p class="auth-sub">Sign in to save your progress, earn Prisma Points and climb the leaderboard.</p>
+      <button class="auth-btn google" id="google-login">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A353" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/></svg>
+        Continue with Google
+      </button>
+      <div class="auth-divider"><span>or</span></div>
+      <button class="auth-btn wallet" id="wallet-login">
+        🔑 Connect Solana Wallet
+      </button>
+      <p class="auth-note">Free to play · No credit card · Earn real Prisma Points</p>
+    </div>`
+  document.body.innerHTML = ''
+  document.body.append(auth)
+
+  document.querySelector('#google-login').onclick = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin }
+    })
+  }
+
+  document.querySelector('#wallet-login').onclick = () => {
+    showToastAuth('Wallet connect coming soon! Use Google for now.')
+  }
+}
+
+function showToastAuth(msg) {
+  const t = document.createElement('div')
+  t.className = 'toast show'
+  t.textContent = msg
+  t.style.cssText = 'position:fixed;bottom:22px;right:22px;z-index:99;background:#e9d2a7;color:#27170d;padding:12px 20px;font-size:12px;'
+  document.body.append(t)
+  setTimeout(() => t.remove(), 3500)
+}
+
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN') {
+    currentUser = session.user
+    document.querySelector('#auth-screen')?.remove()
+    initApp()
+  }
+})
+
+function initApp() {
+  // existing app code runs here
+}
 import './style.css'
 
 const Audio = window.AudioContext || window.webkitAudioContext
@@ -426,13 +500,20 @@ document.querySelector('.active-chapter i').onclick = () => {
   briefing.querySelector('button').onclick = () => { briefing.remove(); document.querySelector('#station-nav').click() }
 }
 
-loadEpisode()
-const streakResult = checkAndUpdateStreak()
-document.querySelector('#points').textContent = `${prismaPoints.toLocaleString()} PP`
-const ranks = [[0,'🌱 Seedling'],[600,'🔍 Observer'],[700,'⚡ Amplifier'],[800,'🔬 Innovator'],[900,'🏆 Core Contributor'],[950,'💎 Founding Validator']]
-const rank = [...ranks].reverse().find(r => reputation >= r[0])
-if (document.querySelector('.progress-hero h2')) document.querySelector('.progress-hero h2').textContent = rank[1]
-setTimeout(() => showStreakBanner(streakResult), 800)
+async function startGame() {
+  loadEpisode()
+  const streakResult = checkAndUpdateStreak()
+  document.querySelector('#points').textContent = `${prismaPoints.toLocaleString()} PP`
+  const ranks = [[0,'🌱 Seedling'],[600,'🔍 Observer'],[700,'⚡ Amplifier'],[800,'🔬 Innovator'],[900,'🏆 Core Contributor'],[950,'💎 Founding Validator']]
+  const rank = [...ranks].reverse().find(r => reputation >= r[0])
+  if (document.querySelector('.progress-hero h2')) document.querySelector('.progress-hero h2').textContent = rank[1]
+  setTimeout(() => showStreakBanner(streakResult), 800)
+  setTimeout(() => showOnboarding(), 1200)
+}
+
+checkUser().then(() => {
+  if (currentUser) startGame()
+})
 function showOnboarding() {
   if (localStorage.getItem('onboarded')) return
   const ob = document.createElement('div')
@@ -574,3 +655,5 @@ document.querySelector('#station-nav').onclick = () => {
   document.querySelector('#progress-nav').classList.remove('active')
   document.querySelector('#leaderboard-nav').classList.remove('active')
 }
+// ── AUTH CHECK ────────────────────────────────────────────────────
+checkUser()
