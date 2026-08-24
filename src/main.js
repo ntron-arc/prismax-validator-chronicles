@@ -47,9 +47,40 @@ function showAuthScreen() {
     })
   }
 
-  document.querySelector('#wallet-login').onclick = () => {
-    showToastAuth('Wallet connect coming soon! Use Google for now.')
+  document.querySelector('#wallet-login').onclick = async () => {
+  try {
+    const { solana } = window
+    if (!solana?.isPhantom) {
+      window.open('https://phantom.app/', '_blank')
+      showToastAuth('Please install Phantom wallet first!')
+      return
+    }
+    const response = await solana.connect()
+    const walletAddress = response.publicKey.toString()
+    const shortAddress = walletAddress.slice(0,4) + '...' + walletAddress.slice(-4)
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: walletAddress + '@wallet.prismax.app',
+      password: walletAddress
+    })
+    if (error) {
+      await supabase.auth.signUp({
+        email: walletAddress + '@wallet.prismax.app',
+        password: walletAddress,
+        options: { data: { wallet: walletAddress, username: shortAddress } }
+      })
+      await supabase.auth.signInWithPassword({
+        email: walletAddress + '@wallet.prismax.app',
+        password: walletAddress
+      })
+    }
+    currentUser = { wallet: walletAddress }
+    document.querySelector('#auth-screen')?.remove()
+    showToastAuth(`✅ Connected: ${shortAddress}`)
+    startGame()
+  } catch (err) {
+    showToastAuth('Wallet connection failed. Try again.')
   }
+}
 }
 
 function showToastAuth(msg) {
