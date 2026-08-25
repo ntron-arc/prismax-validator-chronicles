@@ -542,8 +542,13 @@ async function startGame() {
   setTimeout(() => showOnboarding(), 1200)
 }
 
-checkUser().then(() => {
-  if (currentUser) startGame()
+supabase.auth.getSession().then(({ data: { session } }) => {
+  if (session) {
+    currentUser = session.user
+    startGame()
+  } else {
+    showAuthScreen()
+  }
 })
 function showOnboarding() {
   if (localStorage.getItem('onboarded')) return
